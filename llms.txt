@@ -1,0 +1,42 @@
+# Mapy.com Developer Documentation - LLM Reference
+# Repository: https://github.com/mapycom/developer
+
+## Root Navigation
+ROOT: https://github.com/mapycom/developer/blob/main/README.md
+DOCS_INDEX: https://github.com/mapycom/developer/blob/main/docs/README.md
+
+## REST API Documentation
+REST_INDEX: https://github.com/mapycom/developer/blob/main/docs/rest-api/README.md
+REST_ACCESS: https://github.com/mapycom/developer/blob/main/docs/rest-api/getting-access.md
+REST_MAP_TILES: https://github.com/mapycom/developer/blob/main/docs/rest-api/map-tiles.md
+REST_STATIC_MAPS: https://github.com/mapycom/developer/blob/main/docs/rest-api/static-maps.md
+REST_FORWARD_GEOCODING: https://github.com/mapycom/developer/blob/main/docs/rest-api/forward-geocoding.md
+REST_REVERSE_GEOCODING: https://github.com/mapycom/developer/blob/main/docs/rest-api/reverse-geocoding.md
+REST_ROUTING: https://github.com/mapycom/developer/blob/main/docs/rest-api/routing.md
+REST_MATRIX_ROUTING: https://github.com/mapycom/developer/blob/main/docs/rest-api/matrix-routing.md
+REST_ELEVATION: https://github.com/mapycom/developer/blob/main/docs/rest-api/elevation.md
+REST_STATIC_PANORAMA: https://github.com/mapycom/developer/blob/main/docs/rest-api/static-panorama.md
+REST_TIMEZONE: https://github.com/mapycom/developer/blob/main/docs/rest-api/time-zones.md
+
+## URL Mapy.com Documentation
+URL_INDEX: https://github.com/mapycom/developer/blob/main/docs/url-mapy/README.md
+URL_SHOWMAP: https://github.com/mapycom/developer/blob/main/docs/url-mapy/showmap.md
+URL_SEARCH: https://github.com/mapycom/developer/blob/main/docs/url-mapy/search.md
+URL_ROUTE: https://github.com/mapycom/developer/blob/main/docs/url-mapy/route.md
+
+## JS Panorama Documentation
+JS_PANORAMA_INDEX: https://github.com/mapycom/developer/blob/main/docs/js-panorama/README.md
+
+## External Official Resources
+PORTAL_REST: https://developer.mapy.com/rest-api-mapy-cz/
+PORTAL_URLS: https://developer.mapy.com/further-uses-of-mapycz/mapy-cz-url/
+PORTAL_JS_PANORAMA: https://developer.mapy.com/js-panorama-2/
+API_DOCS: https://api.mapy.com/v1/docs/
+
+## OpenAPI Specifications
+OPENAPI_MAPTILES: https://api.mapy.com/v1/docs/maptiles/openapi.yaml
+OPENAPI_STATIC: https://api.mapy.com/v1/docs/static/openapi.json
+OPENAPI_GEOCODE: https://api.mapy.com/v1/docs/geocode/openapi.json
+OPENAPI_ROUTING: https://api.mapy.com/v1/docs/routing/openapi.json
+OPENAPI_ELEVATION: https://api.mapy.com/v1/docs/elevation/openapi.json
+OPENAPI_TIMEZONE: https://api.mapy.com/v1/docs/timezone/openapi.json
