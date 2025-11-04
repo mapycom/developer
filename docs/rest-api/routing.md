@@ -40,6 +40,62 @@ The routing endpoint returns a JSON object with:
 - `duration` (integer) — Route duration in seconds
 - `geometry` — Planned route in the selected format (GeoJSON, polyline, or polyline6)
 
+### Response Format Examples
+
+#### GeoJSON Format (`format=geojson`)
+
+When using `format=geojson` (default), the response structure is:
+
+```json
+{
+  "length": 8948,
+  "duration": 1125,
+  "geometry": {
+    "type": "Feature",
+    "geometry": {
+      "type": "LineString",
+      "coordinates": [[14.4378, 50.0755], [14.4400, 50.0780], [14.4500, 50.0800]]
+    },
+    "properties": {}
+  }
+}
+```
+
+**Important:** The `geometry` field contains a complete GeoJSON Feature object, not just the geometry. The actual LineString coordinates are nested in `geometry.geometry.coordinates`. When using mapping libraries like Leaflet, you can pass `data.geometry` directly to GeoJSON parsers.
+
+**Example parsing in JavaScript:**
+```javascript
+fetch(`https://api.mapy.com/v1/routing/route?apikey=YOUR_API_KEY&start=14.4378,50.0755&end=16.6068,49.1951&routeType=car_fast&format=geojson`)
+  .then(response => response.json())
+  .then(data => {
+    // data.geometry is already a GeoJSON Feature object
+    const routeLayer = L.geoJSON(data.geometry, {
+      style: { color: '#2196F3', weight: 5, opacity: 0.7 }
+    }).addTo(map);
+    
+    // Get route info
+    const distance = data.length / 1000; // km
+    const duration = data.duration / 60; // minutes
+    console.log(`Distance: ${distance.toFixed(2)} km, Duration: ${duration.toFixed(0)} min`);
+  });
+```
+
+#### Polyline Format (`format=polyline`)
+
+When using `format=polyline`, the `geometry` field contains an encoded polyline string:
+
+```json
+{
+  "length": 8948,
+  "duration": 1125,
+  "geometry": "encoded_polyline_string_here"
+}
+```
+
+#### Polyline6 Format (`format=polyline6`)
+
+When using `format=polyline6`, the `geometry` field contains a polyline6 encoded string.
+
 ## Examples
 
 ### cURL
@@ -65,6 +121,55 @@ curl "https://api.mapy.com/v1/routing/route?apikey=YOUR_API_KEY&start=14.4378,50
 
 # Calculate route with exploded start/end coordinates
 curl "https://api.mapy.com/v1/routing/route?apikey=YOUR_API_KEY&start=14.4378&start=50.0755&end=16.6068&end=49.1951&routeType=car_fast"
+```
+
+### JavaScript Example with Leaflet
+
+This example shows how to parse and display a route using Leaflet.js:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <div id="map" style="height: 500px;"></div>
+    <script>
+        const API_KEY = 'YOUR_API_KEY';
+        const map = L.map('map').setView([50.0755, 14.4378], 13);
+        
+        // Add base map layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        
+        // Calculate and display route
+        fetch(`https://api.mapy.com/v1/routing/route?apikey=${API_KEY}&start=14.4378,50.0755&end=16.6068,49.1951&routeType=car_fast&format=geojson`)
+            .then(response => response.json())
+            .then(data => {
+                // data.geometry is already a GeoJSON Feature object - use directly
+                const routeLayer = L.geoJSON(data.geometry, {
+                    style: {
+                        color: '#2196F3',
+                        weight: 5,
+                        opacity: 0.7
+                    }
+                }).addTo(map);
+                
+                // Fit map to route bounds
+                map.fitBounds(routeLayer.getBounds());
+                
+                // Display route info
+                const distance = (data.length / 1000).toFixed(2); // km
+                const duration = Math.round(data.duration / 60); // minutes
+                console.log(`Distance: ${distance} km, Duration: ${duration} min`);
+            })
+            .catch(error => {
+                console.error('Error calculating route:', error);
+            });
+    </script>
+</body>
+</html>
 ```
 
 ## Route Errors
@@ -118,5 +223,6 @@ For detailed error responses and rate limits, see the [OpenAPI specification](ht
 - [Forward Geocoding](forward-geocoding.md)
 - [URL Route](../url-mapy/route.md)
 - [REST API Documentation](README.md)
+
 
 
