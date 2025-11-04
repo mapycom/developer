@@ -1,42 +1,39 @@
-# Mapy.com Developer Documentation - LLM Reference
-# Repository: https://github.com/mapycom/developer
+# Mapy.com Developer Documentation
 
-## Root Navigation
-ROOT: https://github.com/mapycom/developer/blob/main/README.md
-DOCS_INDEX: https://github.com/mapycom/developer/blob/main/docs/README.md
+This is the comprehensive, AI-accessible reference for developers integrating Mapy.com APIs and URL schemes.  
+It provides detailed guides for REST API functions (map tiles, geocoding, routing, elevation, static maps, panorama, and time zones), URL schemes for direct map invocation, and the JavaScript Panorama component for interactive 360° views.  
+
+The documentation explains authentication, API key management, and usage examples, and includes links to official OpenAPI specifications hosted on api.mapy.com.  
+It serves as a quick, structured resource for building web, mobile, and desktop applications powered by Mapy.com data and map services.  
 
 ## REST API Documentation
-REST_INDEX: https://github.com/mapycom/developer/blob/main/docs/rest-api/README.md
-REST_ACCESS: https://github.com/mapycom/developer/blob/main/docs/rest-api/getting-access.md
-REST_MAP_TILES: https://github.com/mapycom/developer/blob/main/docs/rest-api/map-tiles.md
-REST_STATIC_MAPS: https://github.com/mapycom/developer/blob/main/docs/rest-api/static-maps.md
-REST_FORWARD_GEOCODING: https://github.com/mapycom/developer/blob/main/docs/rest-api/forward-geocoding.md
-REST_REVERSE_GEOCODING: https://github.com/mapycom/developer/blob/main/docs/rest-api/reverse-geocoding.md
-REST_ROUTING: https://github.com/mapycom/developer/blob/main/docs/rest-api/routing.md
-REST_MATRIX_ROUTING: https://github.com/mapycom/developer/blob/main/docs/rest-api/matrix-routing.md
-REST_ELEVATION: https://github.com/mapycom/developer/blob/main/docs/rest-api/elevation.md
-REST_STATIC_PANORAMA: https://github.com/mapycom/developer/blob/main/docs/rest-api/static-panorama.md
-REST_TIMEZONE: https://github.com/mapycom/developer/blob/main/docs/rest-api/time-zones.md
+
+- [REST API Overview](https://github.com/mapycom/developer/blob/main/docs/rest-api/README.md): Complete guide to all REST API functions with links to official documentation
+- [Getting Access](https://github.com/mapycom/developer/blob/main/docs/rest-api/getting-access.md): How to obtain API key, registration, authentication, and security best practices
+- [Map Tiles](https://github.com/mapycom/developer/blob/main/docs/rest-api/map-tiles.md): Integration guide for raster map tiles with Leaflet and MapLibre GL JS examples
+- [Static Maps](https://github.com/mapycom/developer/blob/main/docs/rest-api/static-maps.md): Generate static map images with markers, shapes, and custom styling
+- [Forward Geocoding](https://github.com/mapycom/developer/blob/main/docs/rest-api/forward-geocoding.md): Address to coordinates conversion and autocomplete functionality
+- [Reverse Geocoding](https://github.com/mapycom/developer/blob/main/docs/rest-api/reverse-geocoding.md): Coordinates to address conversion
+- [Routing](https://github.com/mapycom/developer/blob/main/docs/rest-api/routing.md): Calculate routes between points with multiple route types and waypoints
+- [Matrix Routing](https://github.com/mapycom/developer/blob/main/docs/rest-api/matrix-routing.md): Calculate distance and duration matrices for multiple start and end points
+- [Elevation](https://github.com/mapycom/developer/blob/main/docs/rest-api/elevation.md): Get elevation data for coordinates using the DTM-5 elevation model
+- [Static Panorama](https://github.com/mapycom/developer/blob/main/docs/rest-api/static-panorama.md): Generate static 360° panorama images
+- [Time Zones](https://github.com/mapycom/developer/blob/main/docs/rest-api/time-zones.md): Get timezone information for coordinates and IANA timezone codes
 
 ## URL Mapy.com Documentation
-URL_INDEX: https://github.com/mapycom/developer/blob/main/docs/url-mapy/README.md
-URL_SHOWMAP: https://github.com/mapycom/developer/blob/main/docs/url-mapy/showmap.md
-URL_SEARCH: https://github.com/mapycom/developer/blob/main/docs/url-mapy/search.md
-URL_ROUTE: https://github.com/mapycom/developer/blob/main/docs/url-mapy/route.md
+
+- [URL Schemes Overview](https://github.com/mapycom/developer/blob/main/docs/url-mapy/README.md): Introduction to Mapy.com URL schemes for direct map invocation
+- [Showmap Function](https://github.com/mapycom/developer/blob/main/docs/url-mapy/showmap.md): Display maps directly using URL parameters
+- [Search Function](https://github.com/mapycom/developer/blob/main/docs/url-mapy/search.md): Trigger search functionality via URL
+- [Route Function](https://github.com/mapycom/developer/blob/main/docs/url-mapy/route.md): Plan and display routes using URL parameters
 
 ## JS Panorama Documentation
-JS_PANORAMA_INDEX: https://github.com/mapycom/developer/blob/main/docs/js-panorama/README.md
 
-## External Official Resources
-PORTAL_REST: https://developer.mapy.com/rest-api-mapy-cz/
-PORTAL_URLS: https://developer.mapy.com/further-uses-of-mapycz/mapy-cz-url/
-PORTAL_JS_PANORAMA: https://developer.mapy.com/js-panorama-2/
-API_DOCS: https://api.mapy.com/v1/docs/
+- [JS Panorama Guide](https://github.com/mapycom/developer/blob/main/docs/js-panorama/README.md): Complete documentation for JavaScript Panorama component with interactive 360° views, navigation, event handling, and integration examples
 
-## OpenAPI Specifications
-OPENAPI_MAPTILES: https://api.mapy.com/v1/docs/maptiles/openapi.yaml
-OPENAPI_STATIC: https://api.mapy.com/v1/docs/static/openapi.json
-OPENAPI_GEOCODE: https://api.mapy.com/v1/docs/geocode/openapi.json
-OPENAPI_ROUTING: https://api.mapy.com/v1/docs/routing/openapi.json
-OPENAPI_ELEVATION: https://api.mapy.com/v1/docs/elevation/openapi.json
-OPENAPI_TIMEZONE: https://api.mapy.com/v1/docs/timezone/openapi.json
+## Additional Resources
+
+- [REST API Portal](https://developer.mapy.com/rest-api-mapy-cz/): Official REST API documentation and tutorials
+- [URL Schemes Portal](https://developer.mapy.com/further-uses-of-mapycz/mapy-cz-url/): Official documentation for Mapy.com URL functions
+- [JS Panorama Portal](https://developer.mapy.com/js-panorama-2/): Official JavaScript Panorama component documentation
+- [API Documentation Hub](https://api.mapy.com/v1/docs/): Central hub for all OpenAPI specifications and Swagger UI interfaces
