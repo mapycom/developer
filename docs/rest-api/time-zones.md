@@ -95,6 +95,90 @@ curl "https://api.mapy.com/v1/timezone/timezone?apikey=YOUR_API_KEY&timezone=Eur
 curl "https://api.mapy.com/v1/timezone/coordinate?apikey=YOUR_API_KEY&lon=14.4378&lat=50.0755"
 ```
 
+### JavaScript Example with Leaflet
+
+This example demonstrates how to get timezone information by clicking on the map:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Timezone Information</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map { height: 500px; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        const API_KEY = 'YOUR_API_KEY';
+        const map = L.map('map').setView([49.8729317, 14.8981184], 3);
+
+        L.tileLayer(`https://api.mapy.com/v1/maptiles/basic/256/{z}/{x}/{y}?apikey=${API_KEY}`, {
+            attribution: '<a href="https://api.mapy.com/copyright" target="_blank">&copy; Seznam.cz a.s. a další</a>',
+        }).addTo(map);
+
+        const LogoControl = L.Control.extend({
+            options: { position: 'bottomleft' },
+            onAdd: function (map) {
+                const container = L.DomUtil.create('div');
+                const link = L.DomUtil.create('a', '', container);
+                link.setAttribute('href', 'http://mapy.com/');
+                link.setAttribute('target', '_blank');
+                link.innerHTML = '<img src="https://api.mapy.com/img/api/logo.svg" />';
+                L.DomEvent.disableClickPropagation(link);
+                return container;
+            },
+        });
+        new LogoControl().addTo(map);
+
+        function formatUtcOffset(offsetSeconds) {
+            const sign = offsetSeconds >= 0 ? '+' : '-';
+            const absOffset = Math.abs(offsetSeconds);
+            const hours = Math.floor(absOffset / 3600);
+            const minutes = Math.floor((absOffset % 3600) / 60);
+            return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        }
+
+        map.on('click', function (e) {
+            const lat = e.latlng.lat;
+            const lon = e.latlng.lng;
+            const url = `https://api.mapy.com/v1/timezone/coordinate?lon=${lon}&lat=${lat}&lang=cs&apikey=${API_KEY}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const localTime = new Date(data.timezone.currentLocalTime);
+                    const formattedTime = localTime.toLocaleString('cs-CZ', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                    });
+                    const utcOffset = formatUtcOffset(data.timezone.currentUtcOffsetSeconds);
+                    
+                    const popupContent = `
+                        Local time: <strong>${formattedTime}</strong><br>
+                        TimeZone: <strong>${data.timezone.timezoneName}</strong><br>
+                        UTC offset: <strong>${utcOffset}</strong>
+                    `;
+                    
+                    L.popup().setLatLng(e.latlng).setContent(popupContent).openOn(map);
+                })
+                .catch(error => {
+                    console.error('Error fetching timezone data:', error);
+                });
+        });
+    </script>
+</body>
+</html>
+```
+
 ## Response Fields
 
 | Field | Description |
@@ -146,4 +230,3 @@ For detailed error responses and rate limits, see the [OpenAPI specification](ht
 - [Forward Geocoding](forward-geocoding.md)
 - [Reverse Geocoding](reverse-geocoding.md)
 - [REST API Documentation](README.md)
-
