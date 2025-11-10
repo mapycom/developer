@@ -125,48 +125,81 @@ curl "https://api.mapy.com/v1/routing/route?apikey=YOUR_API_KEY&start=14.4378&st
 
 ### JavaScript Example with Leaflet
 
-This example shows how to parse and display a route using Leaflet.js:
+This example demonstrates how to calculate and display a route from Prague to Brno using Leaflet.js:
 
 ```html
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8" />
+    <title>Route from Prague to Brno</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map { height: 500px; }
+    </style>
 </head>
 <body>
-    <div id="map" style="height: 500px;"></div>
+    <div id="map"></div>
     <script>
         const API_KEY = 'YOUR_API_KEY';
-        const map = L.map('map').setView([50.0755, 14.4378], 13);
-        
-        // Add base map layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        
-        // Calculate and display route
-        fetch(`https://api.mapy.com/v1/routing/route?apikey=${API_KEY}&start=14.4378,50.0755&end=16.6068,49.1951&routeType=car_fast&format=geojson`)
-            .then(response => response.json())
-            .then(data => {
-                // data.geometry is already a GeoJSON Feature object - use directly
-                const routeLayer = L.geoJSON(data.geometry, {
-                    style: {
-                        color: '#2196F3',
-                        weight: 5,
-                        opacity: 0.7
-                    }
-                }).addTo(map);
-                
-                // Fit map to route bounds
-                map.fitBounds(routeLayer.getBounds());
-                
-                // Display route info
-                const distance = (data.length / 1000).toFixed(2); // km
-                const duration = Math.round(data.duration / 60); // minutes
-                console.log(`Distance: ${distance} km, Duration: ${duration} min`);
-            })
-            .catch(error => {
-                console.error('Error calculating route:', error);
-            });
+        const map = L.map('map').setView([50.0755, 14.4378], 8);
+
+        L.tileLayer(`https://api.mapy.com/v1/maptiles/basic/256/{z}/{x}/{y}?apikey=${API_KEY}`, {
+            attribution: '<a href="https://api.mapy.com/copyright" target="_blank">&copy; Seznam.cz a.s. a další</a>',
+        }).addTo(map);
+
+        const LogoControl = L.Control.extend({
+            options: { position: 'bottomleft' },
+            onAdd: function (map) {
+                const container = L.DomUtil.create('div');
+                const link = L.DomUtil.create('a', '', container);
+                link.setAttribute('href', 'http://mapy.com/');
+                link.setAttribute('target', '_blank');
+                link.innerHTML = '<img src="https://api.mapy.com/img/api/logo.svg" />';
+                L.DomEvent.disableClickPropagation(link);
+                return container;
+            },
+        });
+        new LogoControl().addTo(map);
+
+        const coordsStart = [14.4378, 50.0755]; // Prague
+        const coordsEnd = [16.6068, 49.1951];   // Brno
+
+        async function calculateRoute() {
+            const url = new URL('https://api.mapy.com/v1/routing/route');
+            url.searchParams.set('apikey', API_KEY);
+            url.searchParams.set('start', coordsStart.join(','));
+            url.searchParams.set('end', coordsEnd.join(','));
+            url.searchParams.set('routeType', 'car_fast');
+            url.searchParams.set('format', 'geojson');
+
+            const response = await fetch(url.toString());
+            if (!response.ok) {
+                console.error('Error calculating route');
+                return null;
+            }
+
+            const data = await response.json();
+            
+            const routeLayer = L.geoJSON(data.geometry, {
+                style: {
+                    color: '#2196F3',
+                    weight: 5,
+                    opacity: 0.7
+                }
+            }).addTo(map);
+
+            map.fitBounds(routeLayer.getBounds());
+
+            const distance = (data.length / 1000).toFixed(2);
+            const duration = Math.floor(data.duration / 60);
+            console.log(`Route: ${distance} km, Duration: ${duration} min`);
+
+            return data;
+        }
+
+        map.whenReady(calculateRoute);
     </script>
 </body>
 </html>
@@ -223,6 +256,5 @@ For detailed error responses and rate limits, see the [OpenAPI specification](ht
 - [Forward Geocoding](forward-geocoding.md)
 - [URL Route](../url-mapy/route.md)
 - [REST API Documentation](README.md)
-
 
 
