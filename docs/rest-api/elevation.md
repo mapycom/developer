@@ -65,6 +65,150 @@ curl "https://api.mapy.com/v1/elevation?apikey=YOUR_API_KEY&positions=14.4009400
 curl "https://api.mapy.com/v1/elevation?apikey=YOUR_API_KEY&positions=14.4009400,50.0711000&positions=14.3951303,50.0704094"
 ```
 
+### JavaScript Example: Route Elevation Profile with Leaflet
+
+This example demonstrates how to calculate a route, get elevation data for it, and display an elevation profile on a Leaflet map. The example includes validation to ensure the route fits within the Elevation API limits (max 256 points, within 1×1 degree bounding box).
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Route Elevation Profile</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- leaflet-elevation -->
+    <link rel="stylesheet" href="https://unpkg.com/@raruto/leaflet-elevation/dist/leaflet-elevation.css" />
+    <script src="https://unpkg.com/@raruto/leaflet-elevation/dist/leaflet-elevation.js"></script>
+    <style>
+        #map { height: 500px; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        const API_KEY = 'YOUR_API_KEY';
+        const map = L.map('map').setView([50.6968506, 15.7378861], 13);
+
+        L.tileLayer(`https://api.mapy.com/v1/maptiles/basic/256/{z}/{x}/{y}?apikey=${API_KEY}`, {
+            attribution: '<a href="https://api.mapy.com/copyright" target="_blank">&copy; Seznam.cz a.s. a další</a>',
+        }).addTo(map);
+
+        const controlElevation = L.control.elevation({ height: 200 }).addTo(map);
+
+        const LogoControl = L.Control.extend({
+            options: { position: 'bottomleft' },
+            onAdd: function (map) {
+                const container = L.DomUtil.create('div');
+                const link = L.DomUtil.create('a', '', container);
+                link.setAttribute('href', 'http://mapy.com/');
+                link.setAttribute('target', '_blank');
+                link.innerHTML = '<img src="https://api.mapy.com/img/api/logo.svg" />';
+                L.DomEvent.disableClickPropagation(link);
+                return container;
+            },
+        });
+        new LogoControl().addTo(map);
+
+        const coordsStart = [15.7378861, 50.6968506];
+        const coordsEnd = [15.6070481, 50.7251503];
+
+        async function calculateRoute() {
+            const url = new URL('https://api.mapy.com/v1/routing/route');
+            url.searchParams.set('apikey', API_KEY);
+            url.searchParams.set('start', coordsStart.join(','));
+            url.searchParams.set('end', coordsEnd.join(','));
+            url.searchParams.set('routeType', 'foot_fast');
+            url.searchParams.set('format', 'geojson');
+
+            const response = await fetch(url.toString());
+            if (!response.ok) {
+                console.error('Error calculating route');
+                return null;
+            }
+
+            const data = await response.json();
+            L.geoJSON(data.geometry, { style: { color: '#2196F3', weight: 5 } }).addTo(map);
+            map.fitBounds(L.geoJSON(data.geometry).getBounds());
+            return data.geometry;
+        }
+
+        function checkBoundingBox(geometry) {
+            const coords = geometry.geometry.coordinates;
+            const lons = coords.map(c => c[0]);
+            const lats = coords.map(c => c[1]);
+            const lonDiff = Math.max(...lons) - Math.min(...lons);
+            const latDiff = Math.max(...lats) - Math.min(...lats);
+            return lonDiff <= 1.0 && latDiff <= 1.0;
+        }
+
+        function selectPoints(geometry) {
+            const points = geometry.geometry.coordinates;
+            if (points.length <= 256) return points;
+            const step = Math.ceil(points.length / 256);
+            const selected = [];
+            for (let i = 0; i < points.length; i += step) {
+                selected.push(points[i]);
+            }
+            if (selected[selected.length - 1] !== points[points.length - 1]) {
+                selected.push(points[points.length - 1]);
+            }
+            return selected;
+        }
+
+        async function getElevationGeoJson(points) {
+            const positions = points.map(p => p.join(',')).join(';');
+            const url = `https://api.mapy.com/v1/elevation?positions=${positions}&apikey=${API_KEY}`;
+            const response = await fetch(url);
+            if (!response.ok) {
+                console.error('Error getting elevation');
+                return null;
+            }
+            const data = await response.json();
+            return JSON.stringify({
+                type: "FeatureCollection",
+                features: [{
+                    type: "Feature",
+                    geometry: {
+                        type: "LineString",
+                        coordinates: data.items.map(item => [item.position.lon, item.position.lat, item.elevation])
+                    }
+                }]
+            });
+        }
+
+        async function main() {
+            const routeGeometry = await calculateRoute();
+            if (!routeGeometry) return;
+
+            if (!checkBoundingBox(routeGeometry)) {
+                console.error('Route is too long (max 1×1 degree bounding box)');
+                return;
+            }
+
+            const points = selectPoints(routeGeometry);
+            const elevationGeoJson = await getElevationGeoJson(points);
+            if (elevationGeoJson) {
+                controlElevation.load(elevationGeoJson);
+            }
+        }
+
+        map.whenReady(main);
+    </script>
+</body>
+</html>
+```
+
+**Key features:**
+
+- Calculates route using Routing API
+- Validates bounding box (must be within 1×1 degree)
+- Selects up to 256 evenly distributed points
+- Gets elevation data and displays profile using `leaflet-elevation` plugin
+- Error handling (errors logged to console)
+
+**Note:** This example requires the `leaflet-elevation` plugin. The plugin creates an elevation chart from GeoJSON LineString coordinates with elevation (Z) values.
+
 ## Elevation Model
 
 The elevation model covers almost the entire world, except for areas around the North and South Poles.
