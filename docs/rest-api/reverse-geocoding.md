@@ -52,6 +52,82 @@ curl "https://api.mapy.com/v1/rgeocode?apikey=YOUR_API_KEY&lon=14.42212&lat=50.0
 curl "https://api.mapy.com/v1/rgeocode?apikey=YOUR_API_KEY&lon=14.4378&lat=50.0755&lang=en"
 ```
 
+### JavaScript Example with Leaflet
+
+This example demonstrates how to get address information by clicking on the map:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Reverse Geocoding</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map { height: 500px; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        const API_KEY = 'YOUR_API_KEY';
+        const map = L.map('map').setView([49.8729317, 14.8981184], 15);
+
+        L.tileLayer(`https://api.mapy.com/v1/maptiles/basic/256/{z}/{x}/{y}?apikey=${API_KEY}`, {
+            attribution: '<a href="https://api.mapy.com/copyright" target="_blank">&copy; Seznam.cz a.s. a další</a>',
+        }).addTo(map);
+
+        const LogoControl = L.Control.extend({
+            options: { position: 'bottomleft' },
+            onAdd: function (map) {
+                const container = L.DomUtil.create('div');
+                const link = L.DomUtil.create('a', '', container);
+                link.setAttribute('href', 'http://mapy.com/');
+                link.setAttribute('target', '_blank');
+                link.innerHTML = '<img src="https://api.mapy.com/img/api/logo.svg" />';
+                L.DomEvent.disableClickPropagation(link);
+                return container;
+            },
+        });
+        new LogoControl().addTo(map);
+
+        map.on('click', async function (e) {
+            const lat = e.latlng.lat;
+            const lon = e.latlng.lng;
+            const url = `https://api.mapy.com/v1/rgeocode?lon=${lon}&lat=${lat}&lang=cs&apikey=${API_KEY}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    console.error('Error fetching reverse geocode data');
+                    return;
+                }
+
+                const data = await response.json();
+                console.log(data.items);
+
+                let html = '';
+                if (data?.items?.length > 0) {
+                    html = '<ul>';
+                    data.items.forEach(item => {
+                        html += `<li><strong>${item.label}:</strong> ${item.name}</li>`;
+                    });
+                    html += '</ul>';
+                } else {
+                    html = '<p>No results found.</p>';
+                }
+
+                L.popup().setLatLng(e.latlng).setContent(html).openOn(map);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
+```
+
 ## Use Cases
 
 - **Click on Map**: Get address when user clicks on a map location
@@ -78,5 +154,4 @@ For detailed error responses and rate limits, see the [OpenAPI specification](ht
 - [Matrix Routing](matrix-routing.md)
 - [URL Search](../url-mapy/search.md)
 - [REST API Documentation](README.md)
-
 
