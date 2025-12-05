@@ -29,6 +29,8 @@ The Routing API provides route calculation between two points, optionally via up
 - `lang` (string, optional) — Language code: `cs`, `de`, `el`, `en`, `es`, `fr`, `it`, `nl`, `pl`, `pt`, `ru`, `sk`, `tr`, `uk` (default: `cs`)
 - `format` (string, optional) — Geometry format: `geojson` (default), `polyline`, `polyline6`
 - `avoidToll` (boolean, optional) — Avoid toll roads (default: `false`)
+- `avoidHighways` (boolean, optional) — Avoid highways/motorways (default: `false`)
+- `departure` (string, optional) — Departure time in local time (ISO-8601 format), e.g. `2025-01-01T00:00:00.000`. If not provided, planning uses "now". Departure time affects time-based closures and restrictions.
 
 > Complete parameter list available in Swagger / OpenAPI above.
 
@@ -39,6 +41,20 @@ The routing endpoint returns a JSON object with:
 - `length` (integer) — Route length in meters
 - `duration` (integer) — Route duration in seconds
 - `geometry` — Planned route in the selected format (GeoJSON, polyline, or polyline6)
+- `parts` (array, optional) — Individual route segments between waypoints, each containing:
+  - `length` (integer) — Segment length in meters
+  - `duration` (integer) — Segment duration in seconds
+- `routePoints` (array, optional) — Detailed data about the start, destination and waypoints, each containing:
+  - `originalPosition` (array) — Original input coordinates `[longitude, latitude]`
+  - `mappedPosition` (array) — Routing network mapped position coordinates `[longitude, latitude]`
+  - `snapDistance` (integer) — Distance in meters between original and mapped position
+  - `restricted` (boolean) — Indicates that the point lies in an area where routing would not normally be planned, but the route was still calculated because the user explicitly forced this point (default: `false`)
+  - `restrictionType` (string, optional) — Type of restriction (only present when `restricted` is `true`):
+    - `NO_ENTRY` — No access / No vehicles or pedestrians allowed
+    - `RESTRICTED_ENTRY` — Restricted access or entry (e.g. permit or payment required)
+    - `PEDESTRIAN_ZONE` — Pedestrian zone
+    - `CLOSURE` — Temporary closure
+    - `OTHER_RESTRICTION` — Other traffic or planning restriction
 
 ### Response Format Examples
 
@@ -57,7 +73,32 @@ When using `format=geojson` (default), the response structure is:
       "coordinates": [[14.4378, 50.0755], [14.4400, 50.0780], [14.4500, 50.0800]]
     },
     "properties": {}
-  }
+  },
+  "parts": [
+    {
+      "length": 5000,
+      "duration": 600
+    },
+    {
+      "length": 3948,
+      "duration": 525
+    }
+  ],
+  "routePoints": [
+    {
+      "originalPosition": [14.4378, 50.0755],
+      "mappedPosition": [14.4379, 50.0756],
+      "snapDistance": 12,
+      "restricted": false
+    },
+    {
+      "originalPosition": [14.4500, 50.0800],
+      "mappedPosition": [14.4501, 50.0801],
+      "snapDistance": 8,
+      "restricted": true,
+      "restrictionType": "PEDESTRIAN_ZONE"
+    }
+  ]
 }
 ```
 
@@ -115,6 +156,12 @@ curl "https://api.mapy.com/v1/routing/route?apikey=YOUR_API_KEY&start=14.4378,50
 
 # Calculate route avoiding toll roads
 curl "https://api.mapy.com/v1/routing/route?apikey=YOUR_API_KEY&start=14.4378,50.0755&end=16.6068,49.1951&routeType=car_fast&avoidToll=true"
+
+# Calculate route avoiding highways
+curl "https://api.mapy.com/v1/routing/route?apikey=YOUR_API_KEY&start=14.4378,50.0755&end=16.6068,49.1951&routeType=car_fast&avoidHighways=true"
+
+# Calculate route with departure time
+curl "https://api.mapy.com/v1/routing/route?apikey=YOUR_API_KEY&start=14.4378,50.0755&end=16.6068,49.1951&routeType=car_fast&departure=2025-01-01T00:00:00.000"
 
 # Get route in polyline format
 curl "https://api.mapy.com/v1/routing/route?apikey=YOUR_API_KEY&start=14.4378,50.0755&end=16.6068,49.1951&routeType=car_fast&format=polyline"
@@ -256,5 +303,6 @@ For detailed error responses and rate limits, see the [OpenAPI specification](ht
 - [Forward Geocoding](forward-geocoding.md)
 - [URL Route](../url-mapy/route.md)
 - [REST API Documentation](README.md)
+
 
 
