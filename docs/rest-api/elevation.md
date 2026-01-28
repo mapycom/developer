@@ -1,6 +1,6 @@
 # Elevation
 
-The Elevation API returns elevation data for given coordinates. It can return elevation for a single point or for a set of points (up to 256 at once – maximum within a 1×1 degree range). Use this to obtain elevation information for points or to create elevation profiles for routes.
+The Elevation API returns elevation data for given coordinates. It can return elevation for a single point or for a set of points (up to 256 at once). Use this to obtain elevation information for points or to create elevation profiles for routes.
 
 ## Quick Links
 
@@ -15,7 +15,7 @@ The Elevation API returns elevation data for given coordinates. It can return el
 ## Key Parameters (Selection)
 
 - `apikey` (string) — Your API key for authentication ([How to get API key](getting-access.md)) (alternative: X-Mapy-Api-Key header)
-- `positions` (array, required) — Up to 256 position coordinates within a 1×1 degree bounding box. Each position is represented by a pair of float numbers, denoting longitude and latitude respectively, separated by a comma.
+- `positions` (array, required) — Up to 256 position coordinates. Each position is represented by a pair of float numbers, denoting longitude and latitude respectively, separated by a comma.
   
   Multiple positions can be provided in two ways:
   1. As a semicolon-separated list: `positions=14.4009400,50.0711000;14.3951303,50.0704094`
@@ -67,7 +67,7 @@ curl "https://api.mapy.com/v1/elevation?apikey=YOUR_API_KEY&positions=14.4009400
 
 ### JavaScript Example: Route Elevation Profile with Leaflet
 
-This example demonstrates how to calculate a route, get elevation data for it, and display an elevation profile on a Leaflet map. The example includes validation to ensure the route fits within the Elevation API limits (max 256 points, within 1×1 degree bounding box).
+This example demonstrates how to calculate a route, get elevation data for it, and display an elevation profile on a Leaflet map. The example includes validation to ensure the route fits within the Elevation API limits (max 256 points).
 
 ```html
 <!DOCTYPE html>
@@ -133,15 +133,6 @@ This example demonstrates how to calculate a route, get elevation data for it, a
             return data.geometry;
         }
 
-        function checkBoundingBox(geometry) {
-            const coords = geometry.geometry.coordinates;
-            const lons = coords.map(c => c[0]);
-            const lats = coords.map(c => c[1]);
-            const lonDiff = Math.max(...lons) - Math.min(...lons);
-            const latDiff = Math.max(...lats) - Math.min(...lats);
-            return lonDiff <= 1.0 && latDiff <= 1.0;
-        }
-
         function selectPoints(geometry) {
             const points = geometry.geometry.coordinates;
             if (points.length <= 256) return points;
@@ -181,11 +172,6 @@ This example demonstrates how to calculate a route, get elevation data for it, a
             const routeGeometry = await calculateRoute();
             if (!routeGeometry) return;
 
-            if (!checkBoundingBox(routeGeometry)) {
-                console.error('Route is too long (max 1×1 degree bounding box)');
-                return;
-            }
-
             const points = selectPoints(routeGeometry);
             const elevationGeoJson = await getElevationGeoJson(points);
             if (elevationGeoJson) {
@@ -202,7 +188,6 @@ This example demonstrates how to calculate a route, get elevation data for it, a
 **Key features:**
 
 - Calculates route using Routing API
-- Validates bounding box (must be within 1×1 degree)
 - Selects up to 256 evenly distributed points
 - Gets elevation data and displays profile using `leaflet-elevation` plugin
 - Error handling (errors logged to console)
@@ -235,7 +220,6 @@ The model is a combination of several elevation models with varying accuracy. Fo
 
 **Limitations:**
 - Maximum 256 positions per request
-- Positions must be within a 1×1 degree bounding box
 - Maximum rate limit: 30 requests per second per API key
 - Coverage: Almost entire world, except areas around North and South Poles
 
